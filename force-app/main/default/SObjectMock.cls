@@ -28,6 +28,14 @@ public with sharing class SObjectMock {
 		return setField(resolveField(fieldName), value);
 	}
 
+	public SObjectMock setId(Id recordId) {
+		return setField('Id', recordId);
+	}
+
+	public SObjectMock setId() {
+		return setField('Id', TestUtility.getFakeId(sObjectType));
+	}
+
 	public SObjectMock setFields(Map<String, Object> fieldsMap) {
 		for (String fieldName : fieldsMap.keySet()) {
 			setField(fieldName, fieldsMap.get(fieldName));
