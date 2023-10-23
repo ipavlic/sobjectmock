@@ -1,11 +1,10 @@
-# SObjectMock
+# `SObjectMock`
 
 Simple light-weight `SObject` mocking utility. Provides a fluent interface for the standard JSON round-trip technique to set relationships and read-only fields.
 
-When a provided parent has an `Id`, it is copied to the appropriate field. 
-Likewise, when the current record has an `Id`, it is copied to the appropriate field on children records. 
+When a parent has an `Id`, it is automatically copied to the appropriate field on children records.
 
-# Example
+## Example
 
 ```apex
 Account mockAccount = (Account) SObjectMock.forType(Account.SObjectType)
