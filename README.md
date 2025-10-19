@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/ipavlic/sobjectmock/graph/badge.svg?token=PKQCFHFZMH)](https://codecov.io/gh/ipavlic/sobjectmock)
+
 # `SObjectMock`
 
 Simple light-weight `SObject` mocking utility. Provides a fluent interface for the standard JSON round-trip technique to set relationships and read-only fields.
