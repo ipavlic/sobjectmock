@@ -11,6 +11,9 @@ public with sharing class SObjectMock {
 	private final Map<ChildRelationship, List<SObjectMock>> children = new Map<ChildRelationship, List<SObjectMock>>();
 
 	public static SObjectMock forType(Schema.SObjectType sobjectType) {
+		if (sobjectType == null) {
+			throw new IllegalArgumentException('SObjectType cannot be null');
+		}
 		return new SObjectMock(sobjectType);
 	}
 
@@ -20,11 +23,17 @@ public with sharing class SObjectMock {
 	}
 
 	public SObjectMock setField(Schema.SObjectField field, Object value) {
+		if (field == null) {
+			throw new IllegalArgumentException('Field cannot be null');
+		}
 		fields.put(field.getDescribe().getName(), value);
 		return this;
 	}
 
 	public SObjectMock setField(String fieldName, Object value) {
+		if (String.isBlank(fieldName)) {
+			throw new IllegalArgumentException('Field name cannot be null or empty');
+		}
 		return setField(resolveField(fieldName), value);
 	}
 
@@ -37,6 +46,9 @@ public with sharing class SObjectMock {
 	}
 
 	public SObjectMock setFields(Map<String, Object> fieldsMap) {
+		if (fieldsMap == null) {
+			throw new IllegalArgumentException('Fields map cannot be null');
+		}
 		for (String fieldName : fieldsMap.keySet()) {
 			setField(fieldName, fieldsMap.get(fieldName));
 		}
@@ -44,6 +56,9 @@ public with sharing class SObjectMock {
 	}
 
 	public SObjectMock setFields(Map<Schema.SObjectField, Object> fieldsMap) {
+		if (fieldsMap == null) {
+			throw new IllegalArgumentException('Fields map cannot be null');
+		}
 		for (Schema.SObjectField field : fieldsMap.keySet()) {
 			setField(field, fieldsMap.get(field));
 		}
@@ -64,14 +79,29 @@ public with sharing class SObjectMock {
 	}
 
 	public SObjectMock setParent(String relationshipName, SObjectMock parentMock) {
+		if (String.isBlank(relationshipName)) {
+			throw new IllegalArgumentException('Relationship name cannot be null or empty');
+		}
+		if (parentMock == null) {
+			throw new IllegalArgumentException('Parent mock cannot be null');
+		}
 		Schema.SObjectField parentField = resolveParentRelationshipField(relationshipName);
 		return setParent(parentField, parentMock);
 	}
 
 	public SObjectMock setChildren(String relationshipName, List<SObjectMock> childrenMocks) {
+		if (String.isBlank(relationshipName)) {
+			throw new IllegalArgumentException('Relationship name cannot be null or empty');
+		}
+		if (childrenMocks == null) {
+			childrenMocks = new List<SObjectMock>();
+		}
 		ChildRelationship childRelationship = resolveChildRelationship(relationshipName);
 		SObjectType childSObjectType = childRelationship.getChildSObject();
 		for (SObjectMock childMock : childrenMocks) {
+			if (childMock == null) {
+				throw new IllegalArgumentException('Child mock cannot be null');
+			}
 			if (childSObjectType != childMock.sObjectType) {
 				throw new InvalidRelationshipException(String.format('Wrong object type {0} for "{1}" relationship on {2}. Expected {3}.',
 					new String[]{
@@ -108,6 +138,12 @@ public with sharing class SObjectMock {
 	 * @return this
 	 */
 	public SObjectMock setParent(Schema.SObjectField lookupField, SObjectMock parentMock) {
+		if (lookupField == null) {
+			throw new IllegalArgumentException('Lookup field cannot be null');
+		}
+		if (parentMock == null) {
+			throw new IllegalArgumentException('Parent mock cannot be null');
+		}
 		DescribeFieldResult fieldDescription = lookupField.getDescribe();
 		List<SObjectType> referenceTo = fieldDescription.getReferenceTo();
 		if (referenceTo.isEmpty()) {
@@ -178,5 +214,13 @@ public with sharing class SObjectMock {
 
 	public SObject asSObject() {
 		return (SObject) JSON.deserialize(JSON.serialize(getData()), Type.forName(sObjectType.getDescribe().getName()));
+	}
+
+	/**
+	 * @description Returns a JSON representation of the mock object for debugging purposes
+	 * @return JSON string representation of the mock data
+	 */
+	public String toJson() {
+		return JSON.serializePretty(getData());
 	}
 }
